@@ -1,4 +1,4 @@
-using AudioLibrary.Data;
+﻿using AudioLibrary.Data;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +19,16 @@ builder.Services.AddDbContext<AudioLibraryContext>(
     }
     );
 
+// Svi se od svuda na sve moguæe naèine mogu spojitina naš API
+// Čitati https://code-maze.com/aspnetcore-webapi-best-practices/
+builder.Services.AddCors(opcije =>
+{
+    opcije.AddPolicy("CorsPolicy",
+        builder =>
+            builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()
+    );
+
+});
 
 var app = builder.Build();
 
@@ -44,6 +54,6 @@ app.UseDefaultFiles();
 app.MapFallbackToFile("index.html");
 
 app.UseCors("CorsPolicy");
-// zavr�io za potrebe produkcije
+// završio za potrebe produkcije
 
 app.Run();
