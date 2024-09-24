@@ -1,4 +1,5 @@
 ﻿using AudioLibrary.Data;
+using AudioLibrary.Mapping;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,6 +30,10 @@ builder.Services.AddCors(opcije =>
     );
 
 });
+
+// uutomapper
+builder.Services.AddAutoMapper(typeof(AudioLibraryMappingProfile));
+
 
 var app = builder.Build();
 
