@@ -1,5 +1,7 @@
 ﻿using AudioLibrary.Data;
 using AudioLibrary.Models;
+using AudioLibrary.Models.DTO;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AudioLibrary.Controllers
@@ -7,51 +9,115 @@ namespace AudioLibrary.Controllers
 
     [ApiController]
     [Route("api/v1/[controller]")]
-    public class GenreController:ControllerBase
+    public class GenreController(AudioLibraryContext context, IMapper mapper) : AudioLibraryController(context, mapper)
+
     {
 
-        private readonly AudioLibraryContext _context;
-
-        public GenreController(AudioLibraryContext context)
-        {
-            _context = context;
-        }
 
         [HttpGet]
-        public IActionResult Get()
+        public ActionResult<List<GenreDTORead>> Get()
         {
-            return Ok(_context.Genres);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { poruka = ModelState });
+            }
+            try
+            {
+                return Ok(_mapper.Map<List<GenreDTORead>>(_context.Genres));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { poruka = ex.Message });
+            }
+
         }
+
 
         [HttpGet]
         [Route("{id:int}")]
 
-        public IActionResult GetById(int id)
+        public ActionResult<GenreDTORead> GetByid(int id)
         {
-            return Ok(_context.Genres.Find(id));
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { poruka = ModelState });
+            }
+            Genre? e;
+            try
+            {
+                e = _context.Genres.Find(id);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { poruka = ex.Message });
+            }
+            if (e == null)
+            {
+                return NotFound(new { poruka = "Genre doesn't exist in database"});
+            }
+
+            return Ok(_mapper.Map<GenreDTORead>(e));
         }
 
         [HttpPost]
-        public IActionResult Post(Genre genre)
+        public IActionResult Post(GenreDTOInsertUpdate dto)
         {
-            _context.Genres.Add(genre);
-            _context.SaveChanges();
-            return StatusCode(StatusCodes.Status201Created, genre);
+            if (ModelState.IsValid)
+            {
+                return BadRequest(new { poruka = ModelState });
+            }
+            try
+            {
+                var e = _mapper.Map<Genre>(dto);
+                _context.Genres.Add(e);
+                _context.SaveChanges();
+                return StatusCode(StatusCodes.Status201Created, _mapper.Map<GenreDTORead>(e));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { poruka = ex.Message });
+            }
+
+
+
         }
 
         [HttpPut]
         [Route("{id:int}")]
         [Produces("application/json")]
-        public IActionResult Put(int id, Genre genre)
+        public IActionResult Put(int id, GenreDTOInsertUpdate dto) 
         {
-            var genreFromBase = _context.Genres.Find(id);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { poruka = ModelState });
+            }
+            try
+            {
+                Genre? e;
+                try
+                {
+                    e = _context.Genres.Find(id);
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(new { poruka = ex.Message });
+                }
+                if (e == null)
+                {
+                    return NotFound(new { poruka = "Genre doesn't exist in database" });
+                }
 
-            genreFromBase.name_of_genre = genre.name_of_genre;
+                e = _mapper.Map(dto, e);
 
-            _context.Genres.Update(genreFromBase);
-            _context.SaveChanges();
+                _context.Genres.Update(e);
+                _context.SaveChanges();
 
-            return Ok(new {poruka= "Uspješno promjenjeno" });
+                return Ok(new { poruka = "successfully changed" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { poruka= ex.Message });
+            }
 
         } 
 
@@ -61,11 +127,35 @@ namespace AudioLibrary.Controllers
 
         public IActionResult Delete(int id)
         {
-            var genreFromBase = _context.Genres.Find(id);
-            _context.Genres.Remove(genreFromBase);
-            _context.SaveChanges();
-            return Ok(new { poruka = "Uspješno obrisano" });
+            if (!ModelState.IsValid) 
+            {
+                return BadRequest(new { poruka = ModelState });
+            }
+            try
+            {
+                Genre? e;
+                try
+                {
+                    e = _context.Genres.Find(id);
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(new { poruka = ex.Message });
+                }
+                if (e == null)
+                {
+                    return NotFound("Genre doesn't exist in database");
+                }
+                _context.Genres.Remove(e);
+                _context.SaveChanges();
+                return Ok(new { poruka = "successfully deleted" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { poruka = ex.Message });
+            }
         }
+
 
 
     }

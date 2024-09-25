@@ -31,7 +31,7 @@ builder.Services.AddCors(opcije =>
 
 });
 
-// uutomapper
+// automapper
 builder.Services.AddAutoMapper(typeof(AudioLibraryMappingProfile));
 
 

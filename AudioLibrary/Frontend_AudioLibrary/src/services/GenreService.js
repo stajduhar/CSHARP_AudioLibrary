@@ -40,7 +40,16 @@ async function dodaj(genre) {
         return {greska: false, poruka: odgovor.data}
     })
     .catch((e)=>{
-        return {greska: true, poruka: 'Genre cannot be added!'}
+        switch (e.status) {
+            case 400:
+                let poruke='';
+                for(const kljuc in e.response.data.errors){
+                    poruke += kljuc + ': ' + e.response.data.errors[kljuc][0] + '\n';
+                }
+                return {greska: true, poruka: poruke}
+            default:
+                return {greska: true, poruka: 'Genre cannot be added!'}
+        }
     })
 }
 
@@ -50,8 +59,18 @@ async function promjena(id,genre) {
     .then((odgovor)=>{
         return {greska: false, poruka: odgovor.data}
     })
-    .catch(()=>{
-        return {greska: true, poruka: 'Genre cannot be changed!'}
+    .catch((e)=>{
+        switch (e.status) {
+            case 400:
+                let poruke='';
+                for(const kljuc in e.response.data.errors){
+                    poruke += kljuc + ': ' + e.response.data.errors[kljuc][0] + '\n';
+                }
+                console.log(poruke)
+                return {greska: true, poruka: poruke}
+            default:
+                return {greska: true, poruka: 'Genre cannot be added!'}
+        }
     })
 }
 
