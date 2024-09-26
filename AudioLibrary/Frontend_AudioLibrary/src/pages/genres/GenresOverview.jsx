@@ -58,6 +58,7 @@ export default function GenresOverview(){
                     <tr>
                         <th>id</th>
                         <th>name of genre</th>
+                        <th>action</th>
                     </tr>
                 </thead>
                 <tbody>
